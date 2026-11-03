@@ -4,9 +4,17 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>张丹炫 | 设计 × 技术 · 个人主页</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;700;900&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+	<meta name="description" content="张丹炫 ·「设计 × 技术」复合实践者：UI 设计 / 前端开发 / 电商运营，3 段实习实训经历，可立即到岗。">
+	<meta name="theme-color" content="#FAF8F2">
+	<link rel="preconnect" href="https://fonts.loli.net" crossorigin>
+	<link rel="preconnect" href="https://gstatic.loli.net" crossorigin>
+	<link rel="stylesheet" href="https://fonts.loli.net/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&family=Noto+Sans+SC:wght@400;700;900&family=Noto+Serif+SC:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
+	<script>
+	/* 全站图片懒加载：滚到哪张才下载哪张，弱网/流量友好 */
+	new MutationObserver(function(ms){ms.forEach(function(r){r.addedNodes.forEach(function(n){
+	  if(n.nodeName==='IMG') n.loading='lazy';
+	})})}).observe(document.documentElement,{childList:true,subtree:true});
+	</script>
 	<style>
 	  /* ============ 清新浅色设计变量 ============ */
 	  :root{
@@ -347,6 +355,70 @@
 	.huang-cover:hover .video-play span{background:var(--mint);color:#fff;transform:scale(1.12)}
 	.huang-cover.playing .video-play{opacity:0}
 	.huang-badge{position:absolute;left:12px;top:12px;z-index:5;background:rgba(23,50,44,.75);color:#fff;font-family:var(--font-mono);font-size:.72rem;font-weight:600;letter-spacing:1px;padding:4px 12px;border-radius:8px;backdrop-filter:blur(4px)}
+		/* ============ ★ 移动端自适应补丁 ============ */
+	/* 1) 字体兜底：网络字体失败时用系统字体，不卡白屏 */
+	:root{
+	  --font-sans:'Inter','PingFang SC','HarmonyOS Sans SC','MiSans','Microsoft YaHei',system-ui,-apple-system,sans-serif;
+	  --font-serif:'Noto Serif SC','Songti SC','STSong','SimSun',serif;
+	  --font-mono:'Space Grotesk','SF Mono',ui-monospace,Menlo,Consolas,monospace;
+	}
+	/* 2) iOS 兼容 + 去掉手机点按的灰色闪块 */
+	header.nav,.mobile-menu,.hero-stats{-webkit-backdrop-filter:blur(12px)}
+	*{-webkit-tap-highlight-color:transparent}
+	/* 3) 触屏设备：关闭自定义光标，点按有按压反馈 */
+	@media (hover:none){
+	  .cursor,.cursor-follower{display:none!important}
+	  *{cursor:auto!important}
+	  .gallery-card:active,.project-card:active,.timeline-card:active{transform:scale(.985)}
+	  .magnetic-btn:active{transform:scale(.96)}
+	}
+	/* 4) 手机首屏修复：数据条不再压住文字，改为自然下排 */
+	@media (max-width:768px){
+	  .hero{min-height:auto;justify-content:flex-start;padding:118px 0 30px}
+	  .hero-stats{position:static}
+	  .hero-cta{gap:12px}
+	  .hero-cta .magnetic-btn{padding:14px 26px;font-size:.95rem}
+	  .contact-grid{grid-template-columns:repeat(2,1fr)}
+	  .contact-card{padding:22px 18px}
+	}
+	/* 5) 小屏手机（≤430px）：边距字号再收紧一档 */
+	@media (max-width:430px){
+	  .container{padding:0 20px}
+	  header.nav,header.nav.scrolled{padding:12px 20px}
+	  .section{padding:64px 0}
+	  .section-title{font-size:2rem;letter-spacing:1px}
+	  .section-num{font-size:3rem}
+	  .section-desc{font-size:.95rem;margin-bottom:40px}
+	  .hero h1{font-size:2.55rem;letter-spacing:-1px}
+	  .about-headline{font-size:1.8rem}
+	  .stat-num{font-size:1.8rem}
+	  .project-card,.timeline-card,.edu-card,.cert-card,.tools-card{padding:26px 22px}
+	  .project-card.featured{padding:28px 22px}
+	  .marquee-track span{font-size:1.05rem;letter-spacing:2px}
+	  .kw{padding:7px 14px;font-size:.85rem}
+	  .shot{width:132px}
+	  .shot img{height:220px}
+	}
+	@media (max-width:380px){
+	  .contact-grid{grid-template-columns:1fr}
+	}
+	/* 6) 手机上弹窗：关闭按钮更大更好点 */
+	@media (max-width:768px){
+	  .modal-content{width:92%}
+	  .modal-content video,.modal-content img{max-height:72vh;border-radius:12px}
+	  .close-btn{top:-48px;right:0;width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:rgba(255,255,255,.16);border-radius:50%}
+	}
+	/* 7) 手机端悬浮「联系我」按钮（配合修改④，不放也不报错） */
+	.mobile-cta{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:950;padding:13px 30px;border-radius:50px;background:var(--mint);color:#fff;font-weight:700;font-size:.95rem;text-decoration:none;box-shadow:0 12px 26px -8px rgba(47,191,160,.65);align-items:center;gap:8px}
+	@media (max-width:768px){
+	  .mobile-cta{display:inline-flex}
+	  .back-top{bottom:88px;right:18px}
+	}
+	/* 8) 横屏矮屏：藏掉漂浮装饰避免遮挡 */
+	@media (max-height:520px) and (max-width:900px){
+	  .geo{display:none}
+	  .hero{padding-top:96px}
+	}
 	</style>
 	</head>
 	<body>
@@ -1091,6 +1163,17 @@
 	          });
 	        });
 	      });
+		  	      // ===== 8.5 移动端补丁：菜单 / 弹窗打开时锁定背景滚动 =====
+	      const lockWatch = [mobileMenu, videoModal, lightbox];
+	      if (lockWatch.every(el => el)) {
+	        const syncLock = () => {
+	          const anyOpen = mobileMenu.classList.contains('open')
+	            || videoModal.classList.contains('active')
+	            || lightbox.classList.contains('active');
+	          document.body.style.overflow = anyOpen ? 'hidden' : '';
+	        };
+	        lockWatch.forEach(el => new MutationObserver(syncLock).observe(el, { attributes: true, attributeFilter: ['class'] }));
+	      }
 	      // ===== 9. 磁吸按钮 =====
 	      if (hasGsap) {
 	        document.querySelectorAll('.magnetic-btn').forEach(btn => {
@@ -1107,5 +1190,7 @@
 	      }
 	    });
 	  </script>
+	  	  <!-- 手机端悬浮联系按钮 -->
+	  <a class="mobile-cta" href="mailto:1541815594@qq.com">✉️ 联系我</a>
 	</body>
 	</html>
