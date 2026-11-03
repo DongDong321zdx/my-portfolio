@@ -43,19 +43,32 @@
 	  img{max-width:100%;display:block}
 	  ::-webkit-scrollbar{width:0}
 	  ::selection{background:var(--mint);color:#fff}
-	  /* ============ 开屏动画（浅色） ============ */
-	  .loader{position:fixed;inset:0;z-index:999999;display:flex;justify-content:center;align-items:center;pointer-events:none}
-	  .loader-panel{position:absolute;top:0;height:100vh;width:25%;background:#F2EFE6;border-right:1px solid rgba(47,191,160,.14);transition:transform .8s cubic-bezier(.7,0,.3,1);will-change:transform}
-	  .loader-panel:nth-child(1){left:0;transition-delay:0s}
-	  .loader-panel:nth-child(2){left:25%;transition-delay:.1s}
-	  .loader-panel:nth-child(3){left:50%;transition-delay:.2s}
-	  .loader-panel:nth-child(4){left:75%;border-right:none;transition-delay:.3s}
-	  .loader-content{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .3s,transform .3s}
-	  .loader-logo{font-family:var(--font-mono);font-size:6rem;font-weight:700;color:var(--mint);line-height:1;letter-spacing:-2px}
-	  .loader-progress{font-family:var(--font-mono);font-size:1.5rem;color:var(--ink);margin-top:20px;font-weight:500}
-	  .loader.finished .loader-panel{transform:translateY(-100%)}
-	  .loader.finished .loader-content{opacity:0;transform:scale(.9)}
-	  .loader.finished{visibility:hidden;transition:visibility 0s 1.2s}
+	  	/* ============ 开屏动画 v2：奶油幕布 + 按住进入 ============ */
+	.loader{position:fixed;inset:0;z-index:999999;background:#F2EFE6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;user-select:none;-webkit-user-select:none;transition:transform .95s cubic-bezier(.76,0,.24,1);animation:loaderFailSafe 0s 8s forwards}
+	.loader-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(460px circle at var(--lx,50%) var(--ly,42%),rgba(47,191,160,.16),transparent 65%)}
+	.loader-stage{position:relative;display:flex;flex-direction:column;align-items:center;animation:loaderRise .8s var(--ease) both}
+	@keyframes loaderRise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+	.loader-logo{font-family:var(--font-mono);font-size:clamp(4.2rem,15vw,7rem);font-weight:700;letter-spacing:-3px;line-height:1;color:var(--ink)}
+	.loader-logo span{color:var(--mint);animation:loaderBlink 1.6s ease-in-out infinite}
+	@keyframes loaderBlink{0%,100%{opacity:1}50%{opacity:.25}}
+	.loader-sub{margin-top:14px;font-family:var(--font-mono);font-size:.82rem;letter-spacing:6px;color:var(--muted)}
+	.loader-bar{width:min(320px,64vw);height:3px;border-radius:4px;background:rgba(23,50,44,.08);overflow:hidden;margin-top:26px}
+	.loader-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--peach));border-radius:4px;transition:width .25s ease}
+	.loader-num{margin-top:10px;font-family:var(--font-mono);font-size:.78rem;color:var(--muted);letter-spacing:2px}
+	.loader-enter{position:relative;width:104px;height:104px;border-radius:50%;background:transparent;border:none;cursor:none;opacity:0;transform:translateY(16px) scale(.9);pointer-events:none;transition:opacity .5s var(--ease),transform .5s var(--ease),scale .2s;-webkit-tap-highlight-color:transparent;touch-action:none}
+	.loader-enter.show{opacity:1;transform:none;pointer-events:auto}
+	.loader-enter svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+	.loader-enter .ring-bg{fill:none;stroke:rgba(23,50,44,.12);stroke-width:2.5}
+	.loader-enter .ring-fill{fill:none;stroke:var(--mint);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:182;stroke-dashoffset:182}
+	.enter-txt{position:relative;z-index:2;font-size:.82rem;font-weight:700;letter-spacing:3px;color:var(--ink)}
+	.loader-enter.holding{transform:scale(.94)}
+	.loader-enter.nudge{animation:loaderNudge .35s ease}
+	@keyframes loaderNudge{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+	.loader-lace{position:absolute;left:0;right:0;bottom:-21px;height:22px;background-image:radial-gradient(circle at 11px 0,#F2EFE6 10px,transparent 11px);background-size:22px 22px;pointer-events:none}
+	.loader.finished{transform:translateY(-100%)}
+	.loader.gone{visibility:hidden}
+	@keyframes loaderFailSafe{to{visibility:hidden;transform:translateY(-100%)}}
+	@media (prefers-reduced-motion:reduce){.loader{display:none}}
 	  /* ============ 滚动进度条 ============ */
 	  .progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--mint),var(--peach));z-index:9999;width:0;pointer-events:none;transition:width .1s linear}
 	  /* ============ 自定义光标 ============ */
@@ -422,17 +435,21 @@
 	</style>
 	</head>
 	<body>
-	  <!-- 开屏动画 -->
-	  <div class="loader" id="loader">
-	    <div class="loader-panel"></div>
-	    <div class="loader-panel"></div>
-	    <div class="loader-panel"></div>
-	    <div class="loader-panel"></div>
-	    <div class="loader-content">
-	      <div class="loader-logo">ZDX.</div>
-	      <div class="loader-progress"><span id="load-num">0</span>%</div>
-	    </div>
+	  	<!-- ★ 开屏动画 v2：奶油幕布 + 按住进入 -->
+	<div class="loader" id="loader">
+	  <div class="loader-glow" id="loaderGlow"></div>
+	  <div class="loader-stage">
+	    <div class="loader-logo">ZDX<span>.</span></div>
+	    <div class="loader-sub">张丹炫 · 设计 × 技术</div>
+	    <div class="loader-bar"><i id="loadBar"></i></div>
+	    <div class="loader-num"><span id="loadNum">0</span>%</div>
 	  </div>
+	  <button class="loader-enter" id="loaderEnter" aria-label="按住进入">
+	    <svg viewBox="0 0 64 64"><circle class="ring-bg" cx="32" cy="32" r="29"></circle><circle class="ring-fill" id="enterRing" cx="32" cy="32" r="29"></circle></svg>
+	    <span class="enter-txt">按住进入</span>
+	  </button>
+	  <div class="loader-lace"></div>
+	</div>
 	  <div class="cursor"></div>
 	  <div class="cursor-follower"></div>
 	  <!-- 导航栏 -->
@@ -1045,23 +1062,86 @@
 	          gsap.from(card, { y: 30, opacity: 0, duration: .7, delay: i * 0.08, ease: 'power3.out', scrollTrigger: { trigger: '.contact-grid', start: 'top 88%' } });
 	        });
 	      }
-	      const interval = setInterval(() => {
-	        progress += Math.random() * 15;
-	        if (progress >= 100) {
-	          progress = 100;
-	          if(numText) numText.innerText = "100";
-	          clearInterval(interval);
-	          setTimeout(() => {
-	            if(loader) loader.classList.add('finished');
-	            setTimeout(startIntro, 800);
-	          }, 300);
+	    	      // ===== 开屏 v2 控制器（纯原生，不依赖 GSAP）=====
+	      const ldr = document.getElementById('loader');
+	      const lBar = document.getElementById('loadBar');
+	      const lNum = document.getElementById('loadNum');
+	      const lEnter = document.getElementById('loaderEnter');
+	      const lRing = document.getElementById('enterRing');
+	      const lGlow = document.getElementById('loaderGlow');
+	      let ldrDone = false, entered = false;
+	      const ldrT0 = performance.now();
+	      // 交互 1：光晕跟随手指/鼠标
+	      if (ldr && lGlow) ldr.addEventListener('pointermove', e => {
+	        const r = ldr.getBoundingClientRect();
+	        lGlow.style.setProperty('--lx', ((e.clientX - r.left) / r.width * 100) + '%');
+	        lGlow.style.setProperty('--ly', ((e.clientY - r.top) / r.height * 100) + '%');
+	      });
+	      // 进度：爬升到 92% 等真实加载，3 秒封顶
+	      let ldrProgress = 0;
+	      const ldrTimer = setInterval(() => {
+	        if (ldrDone) return;
+	        ldrProgress = Math.min(92, ldrProgress + Math.random() * 9 + 3);
+	        if (lBar) lBar.style.width = ldrProgress + '%';
+	        if (lNum) lNum.textContent = Math.floor(ldrProgress);
+	      }, 120);
+	      function finishLoad(){
+	        if (ldrDone) return;
+	        const wait = Math.max(0, 900 - (performance.now() - ldrT0));
+	        setTimeout(() => {
+	          if (ldrDone) return;
+	          ldrDone = true; clearInterval(ldrTimer);
+	          ldrProgress = 100;
+	          if (lBar) lBar.style.width = '100%';
+	          if (lNum) lNum.textContent = '100';
+	          if (ldr) ldr.classList.add('ready');
+	          if (lEnter) lEnter.classList.add('show');
+	          setTimeout(() => doEnter(), 3500); // 没人按就自动进
+	        }, wait);
+	      }
+	      if (document.readyState === 'complete') finishLoad();
+	      else window.addEventListener('load', finishLoad);
+	      setTimeout(finishLoad, 3000);
+	      // 交互 2：按住 0.55s 圆环填满进入，松手取消并抖动提示
+	      const RING = 182;
+	      let holdRAF = null, holdStart = 0, holdDone = false;
+	      function ringPaint(p){ if (lRing) lRing.style.strokeDashoffset = RING * (1 - p); }
+	      function holdStep(t){
+	        if (holdDone || entered) return;
+	        const p = Math.min(1, (t - holdStart) / 550);
+	        ringPaint(p);
+	        if (p >= 1) { doEnter(); return; }
+	        holdRAF = requestAnimationFrame(holdStep);
+	      }
+	      function holdBegin(e){
+	        if (!ldrDone || entered) return;
+	        e.preventDefault();
+	        holdDone = false; holdStart = performance.now();
+	        if (lEnter) lEnter.classList.add('holding');
+	        holdRAF = requestAnimationFrame(holdStep);
+	      }
+	      function holdCancel(){
+	        if (holdDone || entered) return;
+	        holdDone = true; cancelAnimationFrame(holdRAF); ringPaint(0);
+	        if (lEnter) { lEnter.classList.remove('holding'); lEnter.classList.add('nudge'); setTimeout(() => lEnter && lEnter.classList.remove('nudge'), 360); }
+	      }
+	      if (lEnter) {
+	        lEnter.addEventListener('pointerdown', holdBegin);
+	        ['pointerup','pointerleave','pointercancel'].forEach(ev => lEnter.addEventListener(ev, holdCancel));
+	      }
+	      // 点幕布任意处也可进入（宽容处理）
+	      if (ldr) ldr.addEventListener('click', e => { if (ldrDone && !entered && e.target.closest('.loader-enter') === null) doEnter(); });
+	      function doEnter(){
+	        if (entered) return;
+	        entered = true; holdDone = true;
+	        cancelAnimationFrame(holdRAF); ringPaint(1);
+	        if (ldr) {
+	          ldr.classList.add('finished');
+	          setTimeout(() => { if (ldr) ldr.classList.add('gone'); }, 1000);
 	        }
-	        if(numText) numText.innerText = Math.floor(progress);
-	      }, 50);
-	      setTimeout(() => {
-	        if(loader && !loader.classList.contains('finished')) loader.classList.add('finished');
-	        startIntro();
-	      }, 3500);
+	        setTimeout(startIntro, 650);
+	      }
+	      setTimeout(() => doEnter(), 8000); // 终极兜底
 	      // ===== 3. 自定义光标 =====
 	      const cursor = document.querySelector('.cursor');
 	      const follower = document.querySelector('.cursor-follower');
